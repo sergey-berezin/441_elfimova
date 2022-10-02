@@ -8,32 +8,46 @@ using Microsoft.ML.OnnxRuntime;
 using System.Collections.Generic;
 using System.IO;
 
+
 namespace emotions
 {
-    public static class Emotions
+    public class Emotions
     {
-        public static void EFP(Image<Rgb24> image)
+        static CancellationTokenSource cts = new CancellationTokenSource();
+        static async Task Main(string[] args)
         {
-            using var modelStream = typeof(Emotions).Assembly.GetManifestResourceStream("emotion-ferplus-7.onnx");
-            using var memoryStream = new MemoryStream();
-            modelStream.CopyTo(memoryStream);
-            using var session = new InferenceSession(memoryStream.ToArray()); 
-            foreach(var kv in session.InputMetadata)
-                Console.WriteLine($"{kv.Key}: {MetadataToString(kv.Value)}");
-            foreach(var kv in session.OutputMetadata)
-                Console.WriteLine($"{kv.Key}: {MetadataToString(kv.Value)}]");
-
+            using var cts = new CancellationTokenSource();
+            using var imageStream = File.OpenRead(args.FirstOrDefault() ?? "sample.jpg");
+            var task = Task.Factory.StartNew(async () => {
+                while(!cts.Token.IsCancellationRequested) {
+                    await EFP(args.FirstOrDefault() ?? "sample.jpg");
+                }
+            }, cts.Token);
+            await Task.WhenAll(task);
+            cts.Cancel();
+        }
+        public static async Task<IEnumerable<(string First, float Second)>> EFP(string arg)
+        {
+            var r = new TaskCompletionSource<IEnumerable<(string First, float Second)>>();
+            using Image<Rgb24> image = Image.Load<Rgb24>(arg);
             image.Mutate(ctx => {
                 ctx.Resize(new Size(64,64));
             });
-
+            using var modelStream = typeof(Emotions).Assembly.GetManifestResourceStream("emotion-ferplus-7.onnx");
+            using var memoryStream = new MemoryStream();
+            modelStream.CopyTo(memoryStream);
+            /*foreach(var kv in session.InputMetadata)
+                Console.WriteLine($"{kv.Key}: {MetadataToString(kv.Value)}");
+            foreach(var kv in session.OutputMetadata)
+                Console.WriteLine($"{kv.Key}: {MetadataToString(kv.Value)}]");*/
+            using var session = new InferenceSession(memoryStream.ToArray());
             var inputs = new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor("Input3", GrayscaleImageToTensor(image)) };
             using IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results = session.Run(inputs);
             var emotions = Softmax(results.First(v => v.Name == "Plus692_Output_0").AsEnumerable<float>().ToArray());
 
             string[] keys = { "neutral", "happiness", "surprise", "sadness", "anger", "disgust", "fear", "contempt" };
-            foreach(var i in keys.Zip(emotions))
-                Console.WriteLine($"{i.First}: {i.Second}");
+            keys.Zip(emotions);
+            return await r.Task;
         }
 
         public static DenseTensor<float> GrayscaleImageToTensor(Image<Rgb24> img)
