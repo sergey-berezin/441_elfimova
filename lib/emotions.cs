@@ -7,50 +7,50 @@ using Microsoft.ML.OnnxRuntime.Tensors;
 using Microsoft.ML.OnnxRuntime;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 
 namespace emotions
 {
     public class Emotions
     {
-        static CancellationTokenSource cts = new CancellationTokenSource();
-        static async Task Main(string[] args)
+        private Stream modelStream;
+        private MemoryStream memoryStream;
+        private InferenceSession session;
+        Emotions()
         {
-            using var cts = new CancellationTokenSource();
-            using var imageStream = File.OpenRead(args.FirstOrDefault() ?? "sample.jpg");
-            var task = Task.Factory.StartNew(async () => {
-                while(!cts.Token.IsCancellationRequested) {
-                    await EFP(args.FirstOrDefault() ?? "sample.jpg");
-                }
-            }, cts.Token);
-            await Task.WhenAll(task);
-            cts.Cancel();
+            modelStream = typeof(Emotions).Assembly.GetManifestResourceStream("emotion-ferplus-7.onnx");
+            memoryStream = new MemoryStream();
+            modelStream.CopyTo(memoryStream);
+            session = new InferenceSession(memoryStream.ToArray());
         }
-        public static async Task<IEnumerable<(string First, float Second)>> EFP(string arg)
+        public async Task<Dictionary<string, int>> EFP(string arg,  CancellationToken ct)
         {
-            var r = new TaskCompletionSource<IEnumerable<(string First, float Second)>>();
             using Image<Rgb24> image = Image.Load<Rgb24>(arg);
             image.Mutate(ctx => {
                 ctx.Resize(new Size(64,64));
             });
-            using var modelStream = typeof(Emotions).Assembly.GetManifestResourceStream("emotion-ferplus-7.onnx");
-            using var memoryStream = new MemoryStream();
-            modelStream.CopyTo(memoryStream);
-            /*foreach(var kv in session.InputMetadata)
-                Console.WriteLine($"{kv.Key}: {MetadataToString(kv.Value)}");
-            foreach(var kv in session.OutputMetadata)
-                Console.WriteLine($"{kv.Key}: {MetadataToString(kv.Value)}]");*/
-            using var session = new InferenceSession(memoryStream.ToArray());
+           
             var inputs = new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor("Input3", GrayscaleImageToTensor(image)) };
-            using IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results = session.Run(inputs);
+            IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results;
+            var t = new ActionBlock<IDisposableReadOnlyCollection<DisposableNamedOnnxValue>>(async s => {
+                await results = this.session.Run(inputs);
+            });
+            await t.Completion;
+            
             var emotions = Softmax(results.First(v => v.Name == "Plus692_Output_0").AsEnumerable<float>().ToArray());
 
             string[] keys = { "neutral", "happiness", "surprise", "sadness", "anger", "disgust", "fear", "contempt" };
-            keys.Zip(emotions);
-            return await r.Task;
+            var emotions_dict = new Dictionary<string, int>();
+            for(int i = 0; i < keys.GetLength(); i++)
+            {
+                emotions_dict[keys[i]] = emotions[i];
+            }
+            return emotions_dict;
         }
 
-        public static DenseTensor<float> GrayscaleImageToTensor(Image<Rgb24> img)
+        public DenseTensor<float> GrayscaleImageToTensor(Image<Rgb24> img)
         {
             var w = img.Width;
             var h = img.Height;
@@ -71,10 +71,10 @@ namespace emotions
             return t;
         }
 
-        public static string MetadataToString(NodeMetadata metadata)
+        public string MetadataToString(NodeMetadata metadata)
             => $"{metadata.ElementType}[{String.Join(",", metadata.Dimensions.Select(i => i.ToString()))}]";
 
-        public static float[] Softmax(float[] z)
+        public float[] Softmax(float[] z)
         {
             var exps = z.Select(x => Math.Exp(x)).ToArray();
             var sum = exps.Sum();
