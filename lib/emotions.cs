@@ -18,14 +18,16 @@ namespace emotions
         private Stream modelStream;
         private MemoryStream memoryStream;
         private InferenceSession session;
+        private SemaphoreSlim sessionLock;
         Emotions()
         {
             modelStream = typeof(Emotions).Assembly.GetManifestResourceStream("emotion-ferplus-7.onnx");
             memoryStream = new MemoryStream();
             modelStream.CopyTo(memoryStream);
             session = new InferenceSession(memoryStream.ToArray());
+            sessionLock = new SemaphoreSlim(1, 1);
         }
-        public async Task<Dictionary<string, int>> EFP(string arg,  CancellationToken ct)
+        public async Task<Dictionary<string, float>> EFP(string arg,  CancellationToken ct)
         {
             using Image<Rgb24> image = Image.Load<Rgb24>(arg);
             image.Mutate(ctx => {
@@ -33,17 +35,14 @@ namespace emotions
             });
            
             var inputs = new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor("Input3", GrayscaleImageToTensor(image)) };
-            IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results;
-            var t = new ActionBlock<IDisposableReadOnlyCollection<DisposableNamedOnnxValue>>(async s => {
-                await results = this.session.Run(inputs);
-            });
-            await t.Completion;
-            
+            await sessionLock.WaitAsync();
+            using IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results = this.session.Run(inputs);
+            sessionLock.Release();
             var emotions = Softmax(results.First(v => v.Name == "Plus692_Output_0").AsEnumerable<float>().ToArray());
 
             string[] keys = { "neutral", "happiness", "surprise", "sadness", "anger", "disgust", "fear", "contempt" };
-            var emotions_dict = new Dictionary<string, int>();
-            for(int i = 0; i < keys.GetLength(); i++)
+            var emotions_dict = new Dictionary<string, float>();
+            for(int i = 0; i < keys.Count(); i++)
             {
                 emotions_dict[keys[i]] = emotions[i];
             }
