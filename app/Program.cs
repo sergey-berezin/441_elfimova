@@ -11,12 +11,8 @@ class Program
     static void Main(string[] args)
     {
         string[] Images = {
-            "images/chan1.jpg",
-            "images/chan2.jpg",
-            "images/depp1.jpg",
-            "images/depp2.jpg",
-            "images/dicaprio1.jpg",
-            "images/dicaprio2.jpg"
+            "face1.png",
+            "face2.png"
         };
 
         Emotions e = new Emotions();
