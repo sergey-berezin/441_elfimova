@@ -16,11 +16,11 @@ class Program
         };
 
         Emotions e = new Emotions();
-        for(int i = 0; i < testImages.GetLength(); i++)
+        var res = e.RunTasks(Images);
+        for(int i = 0; i < res.GetLength(); i++)
         {
-            var res = e.EFP(Images[i]);
             Console.WriteLine("Image: ", i);
-            foreach(var picture in res)
+            foreach(var picture in res[i])
             {
                 Console.WriteLine($"emotion: {picture.Key}  value: {picture.Value}");
             }

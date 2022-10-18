@@ -27,6 +27,21 @@ namespace emotions
             session = new InferenceSession(memoryStream.ToArray());
             sessionLock = new SemaphoreSlim(1, 1);
         }
+
+        public async Task<Dictionary<string, Dictionary<string, float>>> RunTasks(string[] Images, CancellationToken ct)
+        {
+            var res = new Dictionary<string, Dictionary<string, float>>();
+            var task0 = Task.Run(async () => {
+                var s = await EFP(Images[0], ct);
+                res.Add(Images[0], s);
+            });
+            var task1 = Task.Run(async () => {
+                var s = await EFP(Images[1], ct);
+                res.Add(Images[1], s);
+            });
+            await Task.WhenAll(task0, task1);
+            return res;
+        }
         public async Task<Dictionary<string, float>> EFP(string arg,  CancellationToken ct)
         {
             using Image<Rgb24> image = Image.Load<Rgb24>(arg);
