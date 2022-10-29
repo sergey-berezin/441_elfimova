@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>441_elfimova.EFP</PackageId>
-    <Version>0.1.2209.121</Version>
+    <Version>0.5.2209.121</Version>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -15,7 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="emotion-ferplus-7.onnx"/>
+    <EmbeddedResource Include="emotion-ferplus-8.onnx">
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

@@ -11,19 +11,20 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
 
-namespace emotions
+namespace EmotionsLibrary
 {
     public class Emotions
     {
-        private Stream modelStream;
+        //private Stream modelStream;
         private MemoryStream memoryStream;
         private InferenceSession session;
         private SemaphoreSlim sessionLock;
-        Emotions()
+        public Emotions()
         {
-            modelStream = typeof(Emotions).Assembly.GetManifestResourceStream("emotion-ferplus-7.onnx");
+            using var modelStream = typeof(Emotions).Assembly.GetManifestResourceStream("emotion-ferplus-8.onnx");
             memoryStream = new MemoryStream();
-            modelStream.CopyTo(memoryStream);
+            if (modelStream != null)
+                modelStream.CopyTo(memoryStream);
             session = new InferenceSession(memoryStream.ToArray());
             sessionLock = new SemaphoreSlim(1, 1);
         }
@@ -57,9 +58,12 @@ namespace emotions
 
             string[] keys = { "neutral", "happiness", "surprise", "sadness", "anger", "disgust", "fear", "contempt" };
             var emotions_dict = new Dictionary<string, float>();
-            for(int i = 0; i < keys.Count(); i++)
+            if(!ct.IsCancellationRequested)
             {
-                emotions_dict[keys[i]] = emotions[i];
+                for(int i = 0; i < keys.Count(); i++)
+                {
+                    emotions_dict[keys[i]] = emotions[i];
+                }
             }
             return emotions_dict;
         }

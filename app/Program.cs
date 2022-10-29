@@ -1,4 +1,4 @@
-using emotions;
+using EmotionsLibrary;
 
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
@@ -6,24 +6,30 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-class Program
+namespace app
 {
-    static void Main(string[] args)
+    class Program
     {
-        string[] Images = {
-            "face1.png",
-            "face2.png"
-        };
-
-        Emotions e = new Emotions();
-        var res = e.RunTasks(Images);
-        for(int i = 0; i < res.GetLength(); i++)
+        static void Main(string[] args)
         {
-            Console.WriteLine("Image: ", i);
-            foreach(var picture in res[i])
+            string[] Images = {
+                "face1.png",
+                "face2.png"
+            };
+
+            Emotions e = new Emotions();
+            CancellationToken ct = new CancellationToken();
+            var res = e.RunTasks(Images, ct);
+            foreach( KeyValuePair<string, Dictionary<string, float>> kvp in res.Result)
             {
-                Console.WriteLine($"emotion: {picture.Key}  value: {picture.Value}");
+                Console.WriteLine("Image: ", kvp.Key);
+                foreach(var picture in kvp.Value)
+                {
+                    Console.WriteLine($"emotion: {picture.Key}  value: {picture.Value}");
+                }
             }
         }
     }
+
 }
+
