@@ -10,32 +10,56 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="20*"/>
             <ColumnDefinition Width="60*"/>
-            <ProgressBar Minimum="0" Maximum="100" Name="pbStatus" />
         </Grid.ColumnDefinitions>
+        <ProgressBar Minimum="0" Maximum="100" Name="pbStatus" />
         <TabControl Margin="10,5,-3,5" Grid.Column="1">
             <TabItem Header="neutral">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                    <Image Name="neutral" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                            Stretch="Uniform"/>
+                <Grid/>
             </TabItem>
             <TabItem Header="happiness">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                    <Image Name="happiness" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                        Stretch="Uniform"/>
+                <Grid/>
             </TabItem>
             <TabItem Header="surprise">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                    <Image Name="surprise" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                        Stretch="Uniform"/>
+                <Grid/>
             </TabItem>
             <TabItem Header="sadness">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                    <Image Name="sadness" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                        Stretch="Uniform"/>
+                <Grid/>
             </TabItem>
             <TabItem Header="anger">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                    <Image Name="anger" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                        Stretch="Uniform"/>
+                <Grid/>
             </TabItem>
             <TabItem Header="disgust">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                    <Image Name="disgust" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                        Stretch="Uniform"/>
+                <Grid/>
             </TabItem>
             <TabItem Header="fear">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                    <Image Name="fear" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                        Stretch="Uniform"/>
+                <Grid/>
             </TabItem>
             <TabItem Header="contempt">
-                <Grid Background="#FFEBEAF3"/>
+                <Grid Background="#FFE5E5E5">
+                    <Image Name="contempt" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                        Stretch="Uniform"/>
+                <Grid/>
             </TabItem>
         </TabControl>
         <Button Name="Folder_Button" Content="Choose folder" HorizontalAlignment="Center" Height="43" Margin="0,33,0,0" VerticalAlignment="Top" Width="168" Background="#FFEDFFF1" Click="Button_Click"/>

@@ -40,24 +40,52 @@ namespace Grid
             }
                 
         }
-
+        private string max(Dictionary<string, float> result_dict)
+        {
+            string max_emotion = "";
+            float max_value = 0;
+            foreach(var emotion in result_dict)
+            {
+                if (emotion.Value > max_value)
+                {
+                    max_value = emotion.Value;
+                    max_emotion = emotion.Key;
+                }
+            }
+            return max_emotion;
+        }
         private async void Process_image(string file, CancellationToken ct)
         { 
             Dictionary<string, float> result_dict;
             var task0 = Task.Run(async () => {
                 result_dict = await emo.EFP(file, ct);
+                var name = max(result_dict);
+                if(name == "neutral")
+                    neutral.Source = file;
+                else if (name == "happiness")
+                    happiness.Source = file;
+                else if (name == "surprise")
+                    surprise.Source = file;
+                else if (name == "sadness")
+                    sadness.Source = file;
+                else if (name == "anger")
+                    anger.Source = file;
+                else if (name == "disgust")
+                    disgust.Source = file;
+                else if (name == "fear")
+                    fear.Source = file;  
+                else if (name == "contempt")
+                    contempt.Source = file;
             });
         }
 
         private async void Run(object sender, RoutedEventArgs e)
         {
-            //wpf progress bar
-            Star_Button.IsEnabled = false;
+            Start_Button.IsEnabled = false;
             Folder_Buttom.IsEnabled = false;
             for(int i = 0; i < files.Length; i++)
             {
                 Process_image(files[i], cts.Token);
-                pbStatus.Value++;
             }
         }
         private void Cancel(object sender, RoutedEventArgs e)
