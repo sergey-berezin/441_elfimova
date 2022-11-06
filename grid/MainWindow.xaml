@@ -11,59 +11,53 @@
             <ColumnDefinition Width="20*"/>
             <ColumnDefinition Width="60*"/>
         </Grid.ColumnDefinitions>
-        <ProgressBar Minimum="0" Maximum="100" Name="pbStatus" />
+        <ProgressBar Minimum="0" Maximum="100" Name="pbStatus" Value="{Binding Progress_Bar}" />
         <TabControl Margin="10,5,-3,5" Grid.Column="1">
             <TabItem Header="neutral">
                 <Grid Background="#FFE5E5E5">
-                    <Image Name="neutral" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                            Stretch="Uniform"/>
-                <Grid/>
+                    <ListBox Name="neutral" ItemsSource="{Binding}" DataContext="{Binding}"/>
+                </Grid>
             </TabItem>
             <TabItem Header="happiness">
                 <Grid Background="#FFE5E5E5">
-                    <Image Name="happiness" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                        Stretch="Uniform"/>
-                <Grid/>
+                    <ListBox Name="happiness" ItemsSource="{Binding}"/>
+                </Grid>
             </TabItem>
             <TabItem Header="surprise">
                 <Grid Background="#FFE5E5E5">
-                    <Image Name="surprise" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                        Stretch="Uniform"/>
-                <Grid/>
+                    <ListBox Name="surprise" ItemsSource="{Binding}"/>
+                </Grid>
             </TabItem>
             <TabItem Header="sadness">
                 <Grid Background="#FFE5E5E5">
-                    <Image Name="sadness" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                        Stretch="Uniform"/>
-                <Grid/>
+                    <ListBox Name="sadness" ItemsSource="{Binding}"/>
+                </Grid>
             </TabItem>
             <TabItem Header="anger">
                 <Grid Background="#FFE5E5E5">
-                    <Image Name="anger" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                        Stretch="Uniform"/>
-                <Grid/>
+                    <ListBox Name="anger" ItemsSource="{Binding}"/>
+                </Grid>
             </TabItem>
             <TabItem Header="disgust">
                 <Grid Background="#FFE5E5E5">
-                    <Image Name="disgust" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                        Stretch="Uniform"/>
-                <Grid/>
+                    <ListBox Name="disgust" ItemsSource="{Binding}"/>
+                </Grid>
             </TabItem>
             <TabItem Header="fear">
                 <Grid Background="#FFE5E5E5">
-                    <Image Name="fear" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                        Stretch="Uniform"/>
-                <Grid/>
+                    <ListBox Name="fear" ItemsSource="{Binding}"/>
+                </Grid>
             </TabItem>
             <TabItem Header="contempt">
                 <Grid Background="#FFE5E5E5">
-                    <Image Name="contempt" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                        Stretch="Uniform"/>
-                <Grid/>
+                    <ListBox Name="contempt" ItemsSource="{Binding}"/>
+                </Grid>
             </TabItem>
         </TabControl>
-        <Button Name="Folder_Button" Content="Choose folder" HorizontalAlignment="Center" Height="43" Margin="0,33,0,0" VerticalAlignment="Top" Width="168" Background="#FFEDFFF1" Click="Button_Click"/>
+        <Button Name ="Folder_Button" Content="Choose folder" HorizontalAlignment="Center" Height="43" Margin="0,33,0,0" VerticalAlignment="Top" Width="168" Background="#FFEDFFF1" Click="Button_Click"/>
         <Button Name="Start_Button" Content="Start" HorizontalAlignment="Center" Height="35" Margin="0,95,0,0" VerticalAlignment="Top" Width="168" Background="#FFD2E6FD" Click="Run"/>
-        <Button Name="Cancel_Button" Content="Cancel" HorizontalAlignment="Center" Height="35" Margin="0,153,0,0" VerticalAlignment="Top" Width="168" Background="#FFFDD6D2" Click="Cancel"/>
+        <Button Content="Cancel" HorizontalAlignment="Center" Height="35" Margin="0,153,0,0" VerticalAlignment="Top" Width="168" Background="#FFFDD6D2"/>
+        <ListBox Name="Statistics" HorizontalAlignment="Center" Height="207" Margin="0,217,0,0" VerticalAlignment="Top" Width="168" DataContext="{Binding}"/>
+
     </Grid>
 </Window>

@@ -5,6 +5,11 @@
       "taskLabel": "задача-grid",
       "appliesTo": "grid/",
       "type": "launch"
+    },
+    {
+      "taskLabel": "задача-grid",
+      "appliesTo": "grid/",
+      "type": "launch"
     }
   ]
 }

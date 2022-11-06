@@ -18,11 +18,24 @@ using EmotionsLibrary;
 
 namespace Grid
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler? PropertyChanged;
+         protected void RaisePropertyChanged(string propertyName) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         Emotions emo;
         CancellationTokenSource cts; 
         string[] files;
+        private double progress_bar = 0;
+        public double Progress_Bar
+        {
+            get { return progress_bar; }
+            set 
+            {
+                progress_bar = value;
+                RaisePropertyChanged("Progress_Bar");
+            }
+        }
         public MainWindow()
         {
             InitializeComponent();
@@ -54,39 +67,55 @@ namespace Grid
             }
             return max_emotion;
         }
-        private async void Process_image(string file, CancellationToken ct)
+        private async Task Process_image(string file, CancellationToken ct)
         { 
             Dictionary<string, float> result_dict;
             var task0 = Task.Run(async () => {
                 result_dict = await emo.EFP(file, ct);
                 var name = max(result_dict);
                 if(name == "neutral")
-                    neutral.Source = file;
+                    neutral.DataContext = file;
                 else if (name == "happiness")
-                    happiness.Source = file;
+                    happiness.DataContext = file;
                 else if (name == "surprise")
-                    surprise.Source = file;
+                    surprise.DataContext = file;
                 else if (name == "sadness")
-                    sadness.Source = file;
+                    sadness.DataContext = file;
                 else if (name == "anger")
-                    anger.Source = file;
+                    anger.DataContext = file;
                 else if (name == "disgust")
-                    disgust.Source = file;
+                    disgust.DataContext = file;
                 else if (name == "fear")
-                    fear.Source = file;  
+                    fear.DataContext = file;  
                 else if (name == "contempt")
-                    contempt.Source = file;
+                    contempt.DataContext = file;
             });
+            await task0;
+            return task0;
         }
 
         private async void Run(object sender, RoutedEventArgs e)
         {
             Start_Button.IsEnabled = false;
-            Folder_Buttom.IsEnabled = false;
-            for(int i = 0; i < files.Length; i++)
+            Folder_Button.IsEnabled = false;
+            Progress_Bar = 0.0;
+            double step = 100.0 / files.Length;
+            pbStatus.Foreground = Brushes.Lime;
+            try
             {
-                Process_image(files[i], cts.Token);
+                for(int i = 0; i < files.Length; i++)
+                {
+                    await Process_image(files[i], cts.Token);
+                    Progress_Bar += step;
+                }
             }
+            catch(OperationCanceledException)
+            {
+                cts = new CancellationTokenSource();
+                pbStatus.Foreground = Brushes.OrangeRed;
+            }
+            Start_Button.IsEnabled = true;
+            Folder_Button.IsEnabled = true;
         }
         private void Cancel(object sender, RoutedEventArgs e)
         {
