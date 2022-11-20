@@ -1,32 +1,24 @@
 using System;
 using SixLabors.ImageSharp; 
 using SixLabors.ImageSharp.PixelFormats;
-using System.Linq;
 using SixLabors.ImageSharp.Processing;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using Microsoft.ML.OnnxRuntime;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
-
 
 namespace EmotionsLibrary
 {
     public class Emotions
     {
-        //private Stream modelStream;
-        private MemoryStream memoryStream;
         private InferenceSession session;
         private SemaphoreSlim sessionLock;
         public Emotions()
         {
             using var modelStream = typeof(Emotions).Assembly.GetManifestResourceStream("emotion-ferplus-8.onnx");
-            memoryStream = new MemoryStream();
-            if (modelStream != null)
+            using var memoryStream = new MemoryStream();
+            if (modelStream is not null)
                 modelStream.CopyTo(memoryStream);
-            session = new InferenceSession(memoryStream.ToArray());
-            sessionLock = new SemaphoreSlim(1, 1);
+            this.session = new InferenceSession(memoryStream.ToArray());
+            this.sessionLock = new SemaphoreSlim(1, 1);
         }
 
         public async Task<Dictionary<string, Dictionary<string, float>>> RunTasks(string[] Images, CancellationToken ct)

@@ -10,7 +10,7 @@ namespace app
 {
     class Program
     {
-        static void Main(string[] args)
+        async void Main(string[] args)
         {
             string[] Images = {
                 "face1.png",
@@ -19,8 +19,18 @@ namespace app
 
             Emotions e = new Emotions();
             CancellationToken ct = new CancellationToken();
-            var res = e.RunTasks(Images, ct);
-            foreach( KeyValuePair<string, Dictionary<string, float>> kvp in res.Result)
+            Dictionary<string, Dictionary<string, float>> res = new Dictionary<string, Dictionary<string, float>>();
+            Dictionary<string, float> result_dict;
+            for(int i = 0; i < Images.Length; i++)
+            {
+                var task0 = Task.Run(async () => {
+                    result_dict = await e.EFP(Images[i], ct);
+                    res[Images[i]] = result_dict;
+                });
+                await task0;
+            }
+            
+            foreach( KeyValuePair<string, Dictionary<string, float>> kvp in res)
             {
                 Console.WriteLine("Image: ", kvp.Key);
                 foreach(var picture in kvp.Value)
