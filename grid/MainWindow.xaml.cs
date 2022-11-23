@@ -103,18 +103,18 @@ namespace WpfApp1
             Progress_Bar = 0.0;
             double step = 100.0 / files.Length;
             pbStatus.Foreground = Brushes.Lime;
-            try
+            for (int i = 0; i < files.Length && !cts.IsCancellationRequested; i++)
             {
-                for (int i = 0; i < files.Length; i++)
+                try
                 {
                     await Process_image(files[i], cts.Token);
                     Progress_Bar += step;
                 }
-            }
-            catch (OperationCanceledException)
-            {
-                cts = new CancellationTokenSource();
-                pbStatus.Foreground = Brushes.OrangeRed;
+                catch (OperationCanceledException)
+                {
+                    cts = new CancellationTokenSource();
+                    pbStatus.Foreground = Brushes.OrangeRed;
+                }
             }
             Start_Button.IsEnabled = true;
             Folder_button.IsEnabled = true;

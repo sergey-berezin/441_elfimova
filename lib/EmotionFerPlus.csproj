@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>441_elfimova.EFP</PackageId>
-    <Version>0.5.2209.121</Version>
+    <Version>0.5.2209.1215</Version>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>

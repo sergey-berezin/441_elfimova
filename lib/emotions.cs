@@ -13,10 +13,12 @@ namespace EmotionsLibrary
         private SemaphoreSlim sessionLock;
         public Emotions()
         {
-            using var modelStream = typeof(Emotions).Assembly.GetManifestResourceStream("emotion-ferplus-8.onnx");
+            using var modelStream = typeof(Emotions).Assembly.GetManifestResourceStream("EmotionFerPlus.emotion-ferplus-8.onnx");
             using var memoryStream = new MemoryStream();
             if (modelStream is not null)
                 modelStream.CopyTo(memoryStream);
+            else
+                throw new Exception("modelStream error");
             this.session = new InferenceSession(memoryStream.ToArray());
             this.sessionLock = new SemaphoreSlim(1, 1);
         }
