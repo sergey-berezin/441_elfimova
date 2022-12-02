@@ -1,31 +1,41 @@
 using System;
 using SixLabors.ImageSharp; 
 using SixLabors.ImageSharp.PixelFormats;
-using System.Linq;
 using SixLabors.ImageSharp.Processing;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using Microsoft.ML.OnnxRuntime;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 
-
-namespace emotions
+namespace EmotionsLibrary
 {
     public class Emotions
     {
-        private Stream modelStream;
-        private MemoryStream memoryStream;
         private InferenceSession session;
         private SemaphoreSlim sessionLock;
-        Emotions()
+        public Emotions()
         {
-            modelStream = typeof(Emotions).Assembly.GetManifestResourceStream("emotion-ferplus-7.onnx");
-            memoryStream = new MemoryStream();
-            modelStream.CopyTo(memoryStream);
-            session = new InferenceSession(memoryStream.ToArray());
-            sessionLock = new SemaphoreSlim(1, 1);
+            using var modelStream = typeof(Emotions).Assembly.GetManifestResourceStream("EmotionFerPlus.emotion-ferplus-8.onnx");
+            using var memoryStream = new MemoryStream();
+            if (modelStream is not null)
+                modelStream.CopyTo(memoryStream);
+            else
+                throw new Exception("modelStream error");
+            this.session = new InferenceSession(memoryStream.ToArray());
+            this.sessionLock = new SemaphoreSlim(1, 1);
+        }
+
+        public async Task<Dictionary<string, Dictionary<string, float>>> RunTasks(string[] Images, CancellationToken ct)
+        {
+            var res = new Dictionary<string, Dictionary<string, float>>();
+            var task0 = Task.Run(async () => {
+                var s = await EFP(Images[0], ct);
+                res.Add(Images[0], s);
+            });
+            var task1 = Task.Run(async () => {
+                var s = await EFP(Images[1], ct);
+                res.Add(Images[1], s);
+            });
+            await Task.WhenAll(task0, task1);
+            return res;
         }
         public async Task<Dictionary<string, float>> EFP(string arg,  CancellationToken ct)
         {
@@ -42,9 +52,12 @@ namespace emotions
 
             string[] keys = { "neutral", "happiness", "surprise", "sadness", "anger", "disgust", "fear", "contempt" };
             var emotions_dict = new Dictionary<string, float>();
-            for(int i = 0; i < keys.Count(); i++)
+            if(!ct.IsCancellationRequested)
             {
-                emotions_dict[keys[i]] = emotions[i];
+                for(int i = 0; i < keys.Count(); i++)
+                {
+                    emotions_dict[keys[i]] = emotions[i];
+                }
             }
             return emotions_dict;
         }
