@@ -100,14 +100,13 @@ namespace Grid
             Progress_Bar = 0.0;
             double step = 100.0 / files.Length;
             pbStatus.Foreground = Brushes.Lime;
-            //Dictionary<string, float> result_emotions = new Dictionary<string, float>();
             result_dict = new Dictionary<string, Dictionary<string, float>>(files.Length);
             for (int i = 0; i < files.Length && !cts.IsCancellationRequested; i++)
             {
                 try
                 {
                     result_dict[files[i]] = new Dictionary<string, float>();
-                    await Process_image(files[i], result_dict[files[i]], cts.Token);
+                    result_dict[files[i]] = await emo.EFP(files[i], cts.Token);
                     Progress_Bar += step;
                 }
                 catch (OperationCanceledException)
@@ -153,14 +152,6 @@ namespace Grid
                     {
                         contemptCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
-                    neutral.ItemsSource = neutralCollection;
-                    happiness.ItemsSource = happinessCollection;
-                    surprise.ItemsSource = surpriseCollection;
-                    sadness.ItemsSource = sadnessCollection;
-                    anger.ItemsSource = angerCollection;
-                    disgust.ItemsSource = disgustCollection;
-                    fear.ItemsSource = fearCollection;
-                    contempt.ItemsSource = contemptCollection;
                 }
                 catch(Exception ex)
                 {
