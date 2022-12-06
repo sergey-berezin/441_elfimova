@@ -59,7 +59,26 @@ namespace Grid
             contempt.ItemsSource = contemptCollection;
             cts = new CancellationTokenSource();
         }
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Clear(object sender, RoutedEventArgs e)
+        {
+            neutralCollection = new ObservableCollection<Image_info>();
+            happinessCollection = new ObservableCollection<Image_info>();
+            surpriseCollection = new ObservableCollection<Image_info>();
+            sadnessCollection = new ObservableCollection<Image_info>();
+            angerCollection = new ObservableCollection<Image_info>();
+            disgustCollection = new ObservableCollection<Image_info>();
+            fearCollection = new ObservableCollection<Image_info>();
+            contemptCollection = new ObservableCollection<Image_info>();
+            neutral.ItemsSource = neutralCollection;
+            happiness.ItemsSource = happinessCollection;
+            surprise.ItemsSource = surpriseCollection;
+            sadness.ItemsSource = sadnessCollection;
+            anger.ItemsSource = angerCollection;
+            disgust.ItemsSource = disgustCollection;
+            fear.ItemsSource = fearCollection;
+            contempt.ItemsSource = contemptCollection;
+        }
+        private void Choose_folder(object sender, RoutedEventArgs e)
         {
             var dlg = new Ookii.Dialogs.Wpf.VistaOpenFileDialog();
             dlg.Multiselect = true;
@@ -95,8 +114,9 @@ namespace Grid
 
         private async void Run(object sender, RoutedEventArgs e)
         {
-            Start_Button.IsEnabled = false;
+            Start_button.IsEnabled = false;
             Folder_button.IsEnabled = false;
+            Clear_button.IsEnabled = false;
             Progress_Bar = 0.0;
             double step = 100.0 / files.Length;
             pbStatus.Foreground = Brushes.Lime;
@@ -158,8 +178,9 @@ namespace Grid
                     MessageBox.Show(ex.Message);
                 }
             }
-            Start_Button.IsEnabled = true;
+            Start_button.IsEnabled = true;
             Folder_button.IsEnabled = true;
+            Clear_button.IsEnabled = true;
         }
         private void Cancel(object sender, RoutedEventArgs e)
         {
