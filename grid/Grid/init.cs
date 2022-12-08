@@ -6,13 +6,12 @@ using System.ComponentModel.DataAnnotations;
 public class ImagesTable
 {
     [Key]
-    public int imageId { get; set; }
     public string fileName { get; set; }
     public string imgPath { get; set; }
-    public int hashCode { get; set; }
+    public byte[] hashCode { get; set; }
     public byte[] blob { get; set; }
     public ImagesTable() { }
-    public ImagesTable(string name, string path, int hash)
+    public ImagesTable(string name, string path, byte[] hash)
     {
         fileName = name;
         imgPath = path;
@@ -23,7 +22,7 @@ public class ImagesTable
 public class EmotionsTable
 {
     [Key]
-    public int imageId { get; set; }
+    public string fileName { get; set; }
     //public Dictionary<string, float> emotions { get; set; }
     public float neutral { get; set; }
     public float happiness { get; set; }
@@ -36,7 +35,6 @@ public class EmotionsTable
     public EmotionsTable() { }
     public EmotionsTable(int imageId, Dictionary<string, float> emotions)
     {
-        this.imageId = imageId;
         neutral = emotions["neutral"];
         happiness = emotions["happiness"];
         surprise = emotions["surprise"];
@@ -53,7 +51,7 @@ public class ImagesContext : DbContext
 {
     public DbSet<ImagesTable> Images { get; set; }
     public DbSet<EmotionsTable> Emotions { get; set; }
-
+    public ImagesContext() => Database.EnsureCreated();
     protected override void OnConfiguring(DbContextOptionsBuilder builder)
     {
         builder.UseSqlite("Data Source=images.db");
