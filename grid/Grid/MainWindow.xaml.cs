@@ -196,7 +196,9 @@ namespace Grid
                                 imgPath = files[i], blob = blobFile, 
                                 hashCode = sha.ComputeHash(blobFile) 
                             });
-                            db.Add(new EmotionsTable { neutral = result_dict[files[i]]["neutral"],
+                            db.Add(new EmotionsTable {
+                                fileName = files[i],
+                                neutral = result_dict[files[i]]["neutral"],
                                 happiness = result_dict[files[i]]["happiness"],
                                 surprise = result_dict[files[i]]["surprise"],
                                 sadness = result_dict[files[i]]["sadness"],
@@ -224,6 +226,7 @@ namespace Grid
                             });
                             db.Add(new EmotionsTable
                             {
+                                fileName = files[i],
                                 neutral = result_dict[files[i]]["neutral"],
                                 happiness = result_dict[files[i]]["happiness"],
                                 surprise = result_dict[files[i]]["surprise"],
@@ -252,6 +255,7 @@ namespace Grid
                             });
                             db.Add(new EmotionsTable
                             {
+                                fileName = files[i],
                                 neutral = result_dict[files[i]]["neutral"],
                                 happiness = result_dict[files[i]]["happiness"],
                                 surprise = result_dict[files[i]]["surprise"],
@@ -280,6 +284,7 @@ namespace Grid
                             });
                             db.Add(new EmotionsTable
                             {
+                                fileName = files[i],
                                 neutral = result_dict[files[i]]["neutral"],
                                 happiness = result_dict[files[i]]["happiness"],
                                 surprise = result_dict[files[i]]["surprise"],
@@ -308,6 +313,7 @@ namespace Grid
                             });
                             db.Add(new EmotionsTable
                             {
+                                fileName = files[i],
                                 neutral = result_dict[files[i]]["neutral"],
                                 happiness = result_dict[files[i]]["happiness"],
                                 surprise = result_dict[files[i]]["surprise"],
@@ -336,6 +342,7 @@ namespace Grid
                             });
                             db.Add(new EmotionsTable
                             {
+                                fileName = files[i],
                                 neutral = result_dict[files[i]]["neutral"],
                                 happiness = result_dict[files[i]]["happiness"],
                                 surprise = result_dict[files[i]]["surprise"],
@@ -364,6 +371,7 @@ namespace Grid
                             });
                             db.Add(new EmotionsTable
                             {
+                                fileName = files[i],
                                 neutral = result_dict[files[i]]["neutral"],
                                 happiness = result_dict[files[i]]["happiness"],
                                 surprise = result_dict[files[i]]["surprise"],
@@ -392,6 +400,7 @@ namespace Grid
                             });
                             db.Add(new EmotionsTable
                             {
+                                fileName = files[i],
                                 neutral = result_dict[files[i]]["neutral"],
                                 happiness = result_dict[files[i]]["happiness"],
                                 surprise = result_dict[files[i]]["surprise"],

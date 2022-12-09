@@ -23,7 +23,6 @@ public class EmotionsTable
 {
     [Key]
     public string fileName { get; set; }
-    //public Dictionary<string, float> emotions { get; set; }
     public float neutral { get; set; }
     public float happiness { get; set; }
     public float surprise { get; set; }
@@ -43,7 +42,6 @@ public class EmotionsTable
         disgust = emotions["disgust"];
         fear = emotions["fear"];
         contempt = emotions["contempt"];
-        //this.emotions = emotions;
     }
 }
 
