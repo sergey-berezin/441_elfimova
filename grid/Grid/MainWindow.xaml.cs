@@ -15,6 +15,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System.Reflection.Metadata;
 using System.Windows.Shapes;
+using Microsoft.EntityFrameworkCore;
 
 namespace Grid
 {
@@ -131,6 +132,33 @@ namespace Grid
             }
             return res;
         }
+        private void AddToDb(int i, byte[] blobFile)
+        {
+            using (var db = new ImagesContext())
+            {
+                HashAlgorithm sha = SHA256.Create();
+                db.Add(new ImagesTable
+                {
+                    fileName = files[i],
+                    imgPath = files[i],
+                    blob = blobFile,
+                    hashCode = sha.ComputeHash(blobFile)
+                });
+                db.Add(new EmotionsTable
+                {
+                    fileName = files[i],
+                    neutral = result_dict[files[i]]["neutral"],
+                    happiness = result_dict[files[i]]["happiness"],
+                    surprise = result_dict[files[i]]["surprise"],
+                    sadness = result_dict[files[i]]["sadness"],
+                    anger = result_dict[files[i]]["anger"],
+                    disgust = result_dict[files[i]]["disgust"],
+                    fear = result_dict[files[i]]["fear"],
+                    contempt = result_dict[files[i]]["contempt"],
+                });
+                db.SaveChanges();
+            }
+        }
         private async void Run(object sender, RoutedEventArgs e)
         {
             Start_button.IsEnabled = false;
@@ -156,7 +184,7 @@ namespace Grid
                         using (var db = new ImagesContext())
                         {
                             var query2 = db.Emotions.Where(x => x.fileName == files[i]);
-                            foreach (var q2 in query2)
+                            foreach (EmotionsTable q2 in query2)
                             {
                                 result_dict[files[i]]["neutral"] = q2.neutral;
                                 result_dict[files[i]]["happiness"] = q2.happiness;
@@ -184,234 +212,44 @@ namespace Grid
                 {
                     var name = max(result_dict[files[i]]);
                     byte[] blobFile = File.ReadAllBytes(files[i]);
-                    int id;
                     if (name == "neutral")
                     {
-                        using (var db = new ImagesContext())
-                        {
-                            id = db.Images.ToList().Count;
-                            HashAlgorithm sha = SHA256.Create();
-                            db.Add(new ImagesTable { 
-                                fileName = files[i], 
-                                imgPath = files[i], blob = blobFile, 
-                                hashCode = sha.ComputeHash(blobFile) 
-                            });
-                            db.Add(new EmotionsTable {
-                                fileName = files[i],
-                                neutral = result_dict[files[i]]["neutral"],
-                                happiness = result_dict[files[i]]["happiness"],
-                                surprise = result_dict[files[i]]["surprise"],
-                                sadness = result_dict[files[i]]["sadness"],
-                                anger = result_dict[files[i]]["anger"],
-                                disgust = result_dict[files[i]]["disgust"],
-                                fear = result_dict[files[i]]["fear"],
-                                contempt = result_dict[files[i]]["contempt"],
-                            });
-                            db.SaveChanges();
-                        }
+                        AddToDb(i, blobFile);
                         neutralCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
                     else if (name == "happiness")
                     {
-                        using (var db = new ImagesContext())
-                        {
-                            id = db.Images.ToList().Count;
-                            HashAlgorithm sha = SHA256.Create();
-                            db.Add(new ImagesTable
-                            {
-                                fileName = files[i],
-                                imgPath = files[i],
-                                blob = blobFile,
-                                hashCode = sha.ComputeHash(blobFile)
-                            });
-                            db.Add(new EmotionsTable
-                            {
-                                fileName = files[i],
-                                neutral = result_dict[files[i]]["neutral"],
-                                happiness = result_dict[files[i]]["happiness"],
-                                surprise = result_dict[files[i]]["surprise"],
-                                sadness = result_dict[files[i]]["sadness"],
-                                anger = result_dict[files[i]]["anger"],
-                                disgust = result_dict[files[i]]["disgust"],
-                                fear = result_dict[files[i]]["fear"],
-                                contempt = result_dict[files[i]]["contempt"],
-                            });
-                            db.SaveChanges();
-                        }
+                        AddToDb(i, blobFile);
                         happinessCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
                     else if (name == "surprise")
                     {
-                        using (var db = new ImagesContext())
-                        {
-                            id = db.Images.ToList().Count;
-                            HashAlgorithm sha = SHA256.Create();
-                            db.Add(new ImagesTable
-                            {
-                                fileName = files[i],
-                                imgPath = files[i],
-                                blob = blobFile,
-                                hashCode = sha.ComputeHash(blobFile)
-                            });
-                            db.Add(new EmotionsTable
-                            {
-                                fileName = files[i],
-                                neutral = result_dict[files[i]]["neutral"],
-                                happiness = result_dict[files[i]]["happiness"],
-                                surprise = result_dict[files[i]]["surprise"],
-                                sadness = result_dict[files[i]]["sadness"],
-                                anger = result_dict[files[i]]["anger"],
-                                disgust = result_dict[files[i]]["disgust"],
-                                fear = result_dict[files[i]]["fear"],
-                                contempt = result_dict[files[i]]["contempt"],
-                            });
-                            db.SaveChanges();
-                        }
+                        AddToDb(i, blobFile);
                         surpriseCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
                     else if (name == "sadness")
                     {
-                        using (var db = new ImagesContext())
-                        {
-                            id = db.Images.ToList().Count;
-                            HashAlgorithm sha = SHA256.Create();
-                            db.Add(new ImagesTable
-                            {
-                                fileName = files[i],
-                                imgPath = files[i],
-                                blob = blobFile,
-                                hashCode = sha.ComputeHash(blobFile)
-                            });
-                            db.Add(new EmotionsTable
-                            {
-                                fileName = files[i],
-                                neutral = result_dict[files[i]]["neutral"],
-                                happiness = result_dict[files[i]]["happiness"],
-                                surprise = result_dict[files[i]]["surprise"],
-                                sadness = result_dict[files[i]]["sadness"],
-                                anger = result_dict[files[i]]["anger"],
-                                disgust = result_dict[files[i]]["disgust"],
-                                fear = result_dict[files[i]]["fear"],
-                                contempt = result_dict[files[i]]["contempt"],
-                            });
-                            db.SaveChanges();
-                        }
+                        AddToDb(i, blobFile);
                         sadnessCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
                     else if (name == "anger")
                     {
-                        using (var db = new ImagesContext())
-                        {
-                            id = db.Images.ToList().Count;
-                            HashAlgorithm sha = SHA256.Create();
-                            db.Add(new ImagesTable
-                            {
-                                fileName = files[i],
-                                imgPath = files[i],
-                                blob = blobFile,
-                                hashCode = sha.ComputeHash(blobFile)
-                            });
-                            db.Add(new EmotionsTable
-                            {
-                                fileName = files[i],
-                                neutral = result_dict[files[i]]["neutral"],
-                                happiness = result_dict[files[i]]["happiness"],
-                                surprise = result_dict[files[i]]["surprise"],
-                                sadness = result_dict[files[i]]["sadness"],
-                                anger = result_dict[files[i]]["anger"],
-                                disgust = result_dict[files[i]]["disgust"],
-                                fear = result_dict[files[i]]["fear"],
-                                contempt = result_dict[files[i]]["contempt"],
-                            });
-                            db.SaveChanges();
-                        }
+                        AddToDb(i, blobFile);
                         angerCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
                     else if (name == "disgust")
                     {
-                        using (var db = new ImagesContext())
-                        {
-                            id = db.Images.ToList().Count;
-                            HashAlgorithm sha = SHA256.Create();
-                            db.Add(new ImagesTable
-                            {
-                                fileName = files[i],
-                                imgPath = files[i],
-                                blob = blobFile,
-                                hashCode = sha.ComputeHash(blobFile)
-                            });
-                            db.Add(new EmotionsTable
-                            {
-                                fileName = files[i],
-                                neutral = result_dict[files[i]]["neutral"],
-                                happiness = result_dict[files[i]]["happiness"],
-                                surprise = result_dict[files[i]]["surprise"],
-                                sadness = result_dict[files[i]]["sadness"],
-                                anger = result_dict[files[i]]["anger"],
-                                disgust = result_dict[files[i]]["disgust"],
-                                fear = result_dict[files[i]]["fear"],
-                                contempt = result_dict[files[i]]["contempt"],
-                            });
-                            db.SaveChanges();
-                        }
+                        AddToDb(i, blobFile);
                         disgustCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
                     else if (name == "fear")
                     {
-                        using (var db = new ImagesContext())
-                        {
-                            id = db.Images.ToList().Count;
-                            HashAlgorithm sha = SHA256.Create();
-                            db.Add(new ImagesTable
-                            {
-                                fileName = files[i],
-                                imgPath = files[i],
-                                blob = blobFile,
-                                hashCode = sha.ComputeHash(blobFile)
-                            });
-                            db.Add(new EmotionsTable
-                            {
-                                fileName = files[i],
-                                neutral = result_dict[files[i]]["neutral"],
-                                happiness = result_dict[files[i]]["happiness"],
-                                surprise = result_dict[files[i]]["surprise"],
-                                sadness = result_dict[files[i]]["sadness"],
-                                anger = result_dict[files[i]]["anger"],
-                                disgust = result_dict[files[i]]["disgust"],
-                                fear = result_dict[files[i]]["fear"],
-                                contempt = result_dict[files[i]]["contempt"],
-                            });
-                            db.SaveChanges();
-                        }
+                        AddToDb(i, blobFile);
                         fearCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
                     else if (name == "contempt")
                     {
-                        using (var db = new ImagesContext())
-                        {
-                            id = db.Images.ToList().Count;
-                            HashAlgorithm sha = SHA256.Create();
-                            db.Add(new ImagesTable
-                            {
-                                fileName = files[i],
-                                imgPath = files[i],
-                                blob = blobFile,
-                                hashCode = sha.ComputeHash(blobFile)
-                            });
-                            db.Add(new EmotionsTable
-                            {
-                                fileName = files[i],
-                                neutral = result_dict[files[i]]["neutral"],
-                                happiness = result_dict[files[i]]["happiness"],
-                                surprise = result_dict[files[i]]["surprise"],
-                                sadness = result_dict[files[i]]["sadness"],
-                                anger = result_dict[files[i]]["anger"],
-                                disgust = result_dict[files[i]]["disgust"],
-                                fear = result_dict[files[i]]["fear"],
-                                contempt = result_dict[files[i]]["contempt"],
-                            });
-                            db.SaveChanges();
-                        }
+                        AddToDb(i, blobFile);
                         contemptCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
                 }

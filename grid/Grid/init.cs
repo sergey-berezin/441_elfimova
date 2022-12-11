@@ -1,11 +1,12 @@
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-
 
 public class ImagesTable
 {
     [Key]
+    public int fileId { get; set; }
     public string fileName { get; set; }
     public string imgPath { get; set; }
     public byte[] hashCode { get; set; }
@@ -22,6 +23,8 @@ public class ImagesTable
 public class EmotionsTable
 {
     [Key]
+    [ForeignKey(nameof(ImagesTable))]
+    public int fileId { get; set; }
     public string fileName { get; set; }
     public float neutral { get; set; }
     public float happiness { get; set; }
