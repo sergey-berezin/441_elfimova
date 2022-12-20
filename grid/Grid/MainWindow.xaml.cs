@@ -6,11 +6,16 @@ using System.Windows.Media;
 using System.Threading;
 using System.ComponentModel;
 using EmotionsLibrary;
+using System.Security.Cryptography;
+using System.IO;
 using System.Linq;
 using System.Collections.ObjectModel;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using System.Reflection.Metadata;
+using System.Windows.Shapes;
+using Microsoft.EntityFrameworkCore;
 
 namespace Grid
 {
@@ -46,6 +51,7 @@ namespace Grid
                 RaisePropertyChanged("Progress_Bar");
             }
         }
+        private SemaphoreSlim semaphore;
         public MainWindow()
         {
             InitializeComponent();
@@ -57,9 +63,29 @@ namespace Grid
             disgust.ItemsSource = disgustCollection;
             fear.ItemsSource = fearCollection;
             contempt.ItemsSource = contemptCollection;
+            semaphore = new SemaphoreSlim(1, 1);
             cts = new CancellationTokenSource();
         }
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Clear(object sender, RoutedEventArgs e)
+        {
+            neutralCollection = new ObservableCollection<Image_info>();
+            happinessCollection = new ObservableCollection<Image_info>();
+            surpriseCollection = new ObservableCollection<Image_info>();
+            sadnessCollection = new ObservableCollection<Image_info>();
+            angerCollection = new ObservableCollection<Image_info>();
+            disgustCollection = new ObservableCollection<Image_info>();
+            fearCollection = new ObservableCollection<Image_info>();
+            contemptCollection = new ObservableCollection<Image_info>();
+            neutral.ItemsSource = neutralCollection;
+            happiness.ItemsSource = happinessCollection;
+            surprise.ItemsSource = surpriseCollection;
+            sadness.ItemsSource = sadnessCollection;
+            anger.ItemsSource = angerCollection;
+            disgust.ItemsSource = disgustCollection;
+            fear.ItemsSource = fearCollection;
+            contempt.ItemsSource = contemptCollection;
+        }
+        private void Choose_folder(object sender, RoutedEventArgs e)
         {
             var dlg = new Ookii.Dialogs.Wpf.VistaOpenFileDialog();
             dlg.Multiselect = true;
@@ -84,30 +110,94 @@ namespace Grid
             }
             return max_emotion;
         }
-        private async Task Process_image(string file, Dictionary<string, float> result_emotions, CancellationToken ct)
+        List<int> chooseFiles()
         {
-            var task0 = Task.Run(async () => {
-                result_emotions = await emo.EFP(file, ct);
-            });
-            await task0;
-            return;
+            List<int> res = new List<int>();
+            for (int i = 0; i < files.Length; i++)
+            {
+                byte[] blobFile = File.ReadAllBytes(files[i]);
+                HashAlgorithm sha = SHA256.Create();
+                var hashCode = sha.ComputeHash(blobFile);
+                using (var db = new ImagesContext())
+                {
+                    if ((db.Images.Any(x => x.hashCode == hashCode)) & (db.Images.Any(x => x.blob == blobFile)))
+                    {
+                        res.Add(1);
+                    }
+                    else
+                    {
+                        res.Add(0);
+                    }
+                }
+            }
+            return res;
         }
-
+        private void AddToDb(int i, byte[] blobFile)
+        {
+            using (var db = new ImagesContext())
+            {
+                HashAlgorithm sha = SHA256.Create();
+                db.Add(new ImagesTable
+                {
+                    fileName = files[i],
+                    imgPath = files[i],
+                    blob = blobFile,
+                    hashCode = sha.ComputeHash(blobFile)
+                });
+                db.Add(new EmotionsTable
+                {
+                    fileName = files[i],
+                    neutral = result_dict[files[i]]["neutral"],
+                    happiness = result_dict[files[i]]["happiness"],
+                    surprise = result_dict[files[i]]["surprise"],
+                    sadness = result_dict[files[i]]["sadness"],
+                    anger = result_dict[files[i]]["anger"],
+                    disgust = result_dict[files[i]]["disgust"],
+                    fear = result_dict[files[i]]["fear"],
+                    contempt = result_dict[files[i]]["contempt"],
+                });
+                db.SaveChanges();
+            }
+        }
         private async void Run(object sender, RoutedEventArgs e)
         {
-            Start_Button.IsEnabled = false;
+            Start_button.IsEnabled = false;
             Folder_button.IsEnabled = false;
+            Clear_button.IsEnabled = false;
             Progress_Bar = 0.0;
             double step = 100.0 / files.Length;
             pbStatus.Foreground = Brushes.Lime;
-            //Dictionary<string, float> result_emotions = new Dictionary<string, float>();
             result_dict = new Dictionary<string, Dictionary<string, float>>(files.Length);
+            List<int> chosen_files = chooseFiles();
             for (int i = 0; i < files.Length && !cts.IsCancellationRequested; i++)
             {
                 try
                 {
                     result_dict[files[i]] = new Dictionary<string, float>();
-                    await Process_image(files[i], result_dict[files[i]], cts.Token);
+                    if (chosen_files[i] == 0)
+                    {
+                        result_dict[files[i]] = await emo.EFP(files[i], cts.Token);
+                    }
+                    else
+                    {
+                        await semaphore.WaitAsync();
+                        using (var db = new ImagesContext())
+                        {
+                            var query2 = db.Emotions.Where(x => x.fileName == files[i]);
+                            foreach (EmotionsTable q2 in query2)
+                            {
+                                result_dict[files[i]]["neutral"] = q2.neutral;
+                                result_dict[files[i]]["happiness"] = q2.happiness;
+                                result_dict[files[i]]["surprise"] = q2.surprise;
+                                result_dict[files[i]]["sadness"] = q2.sadness;
+                                result_dict[files[i]]["anger"] = q2.anger;
+                                result_dict[files[i]]["disgust"] = q2.disgust;
+                                result_dict[files[i]]["fear"] = q2.fear;
+                                result_dict[files[i]]["contempt"] = q2.contempt;
+                            }
+                        }
+                        semaphore.Release();
+                    }
                     Progress_Bar += step;
                 }
                 catch (OperationCanceledException)
@@ -121,54 +211,56 @@ namespace Grid
                 try
                 {
                     var name = max(result_dict[files[i]]);
+                    byte[] blobFile = File.ReadAllBytes(files[i]);
                     if (name == "neutral")
                     {
+                        AddToDb(i, blobFile);
                         neutralCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
                     else if (name == "happiness")
                     {
+                        AddToDb(i, blobFile);
                         happinessCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
                     else if (name == "surprise")
                     {
+                        AddToDb(i, blobFile);
                         surpriseCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
                     else if (name == "sadness")
                     {
+                        AddToDb(i, blobFile);
                         sadnessCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
                     else if (name == "anger")
                     {
+                        AddToDb(i, blobFile);
                         angerCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
                     else if (name == "disgust")
                     {
+                        AddToDb(i, blobFile);
                         disgustCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
                     else if (name == "fear")
                     {
+                        AddToDb(i, blobFile);
                         fearCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
                     else if (name == "contempt")
                     {
+                        AddToDb(i, blobFile);
                         contemptCollection.Add(new Image_info(files[i], result_dict[files[i]]));
                     }
-                    neutral.ItemsSource = neutralCollection;
-                    happiness.ItemsSource = happinessCollection;
-                    surprise.ItemsSource = surpriseCollection;
-                    sadness.ItemsSource = sadnessCollection;
-                    anger.ItemsSource = angerCollection;
-                    disgust.ItemsSource = disgustCollection;
-                    fear.ItemsSource = fearCollection;
-                    contempt.ItemsSource = contemptCollection;
                 }
                 catch(Exception ex)
                 {
                     MessageBox.Show(ex.Message);
                 }
             }
-            Start_Button.IsEnabled = true;
+            Start_button.IsEnabled = true;
             Folder_button.IsEnabled = true;
+            Clear_button.IsEnabled = true;
         }
         private void Cancel(object sender, RoutedEventArgs e)
         {

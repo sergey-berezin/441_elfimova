@@ -127,10 +127,11 @@
                 </Grid>
             </TabItem>
         </TabControl>
-        <Button Name ="Folder_button" Content="Choose folder" HorizontalAlignment="Center" Height="43" Margin="0,33,0,0" VerticalAlignment="Top" Width="168" Background="#FFEDFFF1" Click="Button_Click"/>
-        <Button Name="Start_Button" Content="Start" HorizontalAlignment="Center" Height="35" Margin="0,95,0,0" VerticalAlignment="Top" Width="168" Background="#FFD2E6FD" Click="Run"/>
-        <Button Content="Cancel" HorizontalAlignment="Center" Height="35" Margin="0,153,0,0" VerticalAlignment="Top" Width="168" Background="#FFFDD6D2"/>
-        <ListBox Name="Check" HorizontalAlignment="Left" Height="194" Margin="16,210,0,0" VerticalAlignment="Top" Width="157" ItemsSource="{Binding}"/>
+        <Button Name ="Folder_button" Content="Choose folder" HorizontalAlignment="Center" Height="35" Margin="0,33,0,0" VerticalAlignment="Top" Width="168" Background="White" Click="Choose_folder"/>
+        <Button Name="Start_button" Content="Start" HorizontalAlignment="Center" Height="35" Margin="0,95,0,0" VerticalAlignment="Top" Width="168" Background="White" Click="Run"/>
+        <Button Content="Cancel" HorizontalAlignment="Center" Height="35" Margin="0,153,0,0" VerticalAlignment="Top" Width="168" Background="White"  Click="Cancel"/>
+        <ListBox Name="Check" HorizontalAlignment="Center" Height="89" Margin="0,315,0,0" VerticalAlignment="Top" Width="168" ItemsSource="{Binding}"/>
+        <Button Name="Clear_button" Content="Clear" HorizontalAlignment="Center" Height="35" Margin="0,209,0,0" VerticalAlignment="Top" Width="168" Background="White" Click="Clear"/>
 
     </Grid>
 </Window>
