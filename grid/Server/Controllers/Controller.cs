@@ -1,40 +1,52 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Collections.ObjectModel;
-using System.Net;
-using Contracts;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Server.Database;
-using System.Threading;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Server.Controllers
 {
     [ApiController]
     [Route("images")]
-    [Produces("application/json")]
     public class ServerController : ControllerBase
     {
-        private IDatabase db;
-        public ServerControllers(IDatabase db, ILogger<ServerControllers> logger)
+        private IImagesInterface db;
+        public ServerController(IImagesInterface db)
         {
             this.db = db;
         }
         [HttpPost]
-        public async Task<(int, bool)> AddPhoto((byte[], string) obj, CancellationToken ct)
+        public async Task<ActionResult<int>> PostImage(byte[] img, string local_fileName, CancellationToken ct)
         {
-            var img = obj.Item1;
-            var name = obj.Item2;
-            return await dB.PostImage(img, ct, name);
+            try
+            {
+                return await db.PostImage(img, local_fileName, ct);
+            }
+            catch (OperationCanceledException)
+            {
+                return StatusCode(404, "Error occured while adding an image");
+            }
+            catch (Exception)
+            {
+                return StatusCode(404, "Error occured while adding an image");
+            }
         }
         [HttpGet]
-        public string Get(string name)
+        public List<int> GetAllImagesId()
         {
-            return String.Concat("Hello, ", name, "!");
+            return db.GetAllImagesId();
+        }
+        [HttpGet("{id}")]
+        public ActionResult<FileInfo> GetImageById(int id)
+        {
+            var result = db.GetImageById(id);
+            if (result == null)
+            {
+                return StatusCode(404, "Id is not found");
+            }
+            return result;
+        }
+        [HttpDelete]
+        public async Task DeleteAllImages()
+        {
+            await db.DeleteAllImages();
         }
     }
 }
