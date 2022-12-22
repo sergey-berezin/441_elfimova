@@ -14,29 +14,15 @@ using System.Reflection.Metadata;
 using System.Security.Cryptography;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static System.Net.Mime.MediaTypeNames;
+using Contracts;
 
 namespace Server
 {
-    public struct FileInfo
-    {
-        public int fileId { get; set; }
-        public string fileName { get; set; }
-        public string imgPath { get; set; }
-        public byte[] blob { get; set; }
-        public float neutral { get; set; }
-        public float happiness { get; set; }
-        public float surprise { get; set; }
-        public float sadness { get; set; }
-        public float anger { get; set; }
-        public float disgust { get; set; }
-        public float fear { get; set; }
-        public float contempt { get; set; }
-    }
     public interface IImagesInterface
     {
         Task<int> PostImage(byte[] img, string local_fileName, CancellationToken ct);
         List<int> GetAllImagesId();
-        FileInfo? GetImageById(int id);
+        ImgDataAndEmos? GetImageById(int id);
         Task DeleteAllImages();
     }
     public class DbWorker : IImagesInterface
@@ -53,7 +39,7 @@ namespace Server
                 {
                     HashAlgorithm sha = SHA256.Create();
                     var local_hashCode = sha.ComputeHash(img);
-                    if ((db.Images.Any(x => x.hashCode == local_hashCode)) & (db.Images.Any(x => x.blob == img)))
+                    if (db.Images.Any(x => x.fileName == local_fileName))
                     {
                         var query = db.Images.Where(x => x.blob == img && x.hashCode == local_hashCode).FirstOrDefault();
                         if(query != null)
@@ -104,16 +90,16 @@ namespace Server
                     return images;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new Exception("Caught an error while getting images' ids.");
+                throw new Exception("Caught an error while getting images' ids: "+ex.Message);
             }
         }
-        public FileInfo? GetImageById(int id)
+        public ImgDataAndEmos? GetImageById(int id)
         {
             try
             {
-                FileInfo result = new FileInfo();
+                ImgDataAndEmos result = new ImgDataAndEmos();
                 using (var db = new ImagesContext())
                 {
                     var query1 = db.Images.Where(x => x.fileId == id).FirstOrDefault();

@@ -20,4 +20,8 @@
     <PackageReference Include="NSwag.AspNetCore" Version="13.18.2" />
   </ItemGroup>
 
+  <ItemGroup>
+		<ProjectReference Include="..\Contracts\contracts.csproj" />
+	</ItemGroup>
+
 </Project>

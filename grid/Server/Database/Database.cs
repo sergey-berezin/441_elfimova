@@ -31,6 +31,7 @@ namespace Server
         public string imgPath { get; set; }
         public byte[] hashCode { get; set; }
         public byte[] blob { get; set; }
+        public ImagesTable() {}
         public ImagesTable(string name, string path, byte[] hash, byte[] blobFile)
         {
             fileName = name;
@@ -54,6 +55,7 @@ namespace Server
         public float disgust { get; set; }
         public float fear { get; set; }
         public float contempt { get; set; }
+        public EmotionsTable() {}
         public EmotionsTable(int imageId, string name, Dictionary<string, float> emotions)
         {
             fileId = imageId;

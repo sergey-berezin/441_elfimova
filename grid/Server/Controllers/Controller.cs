@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Storage;
+using Contracts;
 
 namespace Server.Controllers
 {
@@ -13,19 +14,19 @@ namespace Server.Controllers
             this.db = db;
         }
         [HttpPost]
-        public async Task<ActionResult<int>> PostImage(byte[] img, string local_fileName, CancellationToken ct)
+        public async Task<ActionResult<int>> PostImage([FromBody]ImgPost data, CancellationToken ct)
         {
             try
             {
-                return await db.PostImage(img, local_fileName, ct);
+                return await db.PostImage(data.blob, data.path, ct);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                return StatusCode(404, "Error occured while adding an image");
+                return StatusCode(404, "Error occured while adding an image: "+ex.Message);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(404, "Error occured while adding an image");
+                return StatusCode(404, "Error occured while adding an image: "+ex.Message);
             }
         }
         [HttpGet]
@@ -34,7 +35,7 @@ namespace Server.Controllers
             return db.GetAllImagesId();
         }
         [HttpGet("{id}")]
-        public ActionResult<FileInfo> GetImageById(int id)
+        public ActionResult<ImgDataAndEmos> GetImageById(int id)
         {
             var result = db.GetImageById(id);
             if (result == null)

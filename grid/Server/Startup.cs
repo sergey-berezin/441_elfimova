@@ -10,6 +10,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
+using System.Text.Json.Serialization;
+
 namespace Server
 {
     internal class Startup
@@ -24,7 +26,14 @@ namespace Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            //services.AddControllers();
+            services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            });
+
+            services.AddSwaggerDocument();
+            services.AddSingleton<IImagesInterface>(new DbWorker());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -33,16 +42,23 @@ namespace Server
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseOpenApi();
+                app.UseSwaggerUi3();
             }
 
             //app.UseHttpsRedirection();
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
 
+           app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod());
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapGet("/", async context => 
+                {
+                    await context.Response.WriteAsync("Nothing but a starting page:)");
+                });
                 endpoints.MapControllers();
             });
         }
