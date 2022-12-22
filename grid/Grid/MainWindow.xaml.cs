@@ -81,7 +81,7 @@ namespace Grid
             _retryPolicy = Policy.Handle<HttpRequestException>().WaitAndRetryAsync(maxRetries, times =>
                TimeSpan.FromMilliseconds(3000));
         }
-        private async void Clear(object sender, RoutedEventArgs e)
+        private void Clear_Collections()
         {
             neutralCollection = new ObservableCollection<Image_info>();
             happinessCollection = new ObservableCollection<Image_info>();
@@ -100,8 +100,13 @@ namespace Grid
             fear.ItemsSource = fearCollection;
             contempt.ItemsSource = contemptCollection;
             ids = new List<int>();
+            Check.ItemsSource = ids;
+        }
+        private async void Clear(object sender, RoutedEventArgs e)
+        {
             try
             {
+                Clear_Collections();
                 await _retryPolicy.ExecuteAsync(async () =>
                 {
                     var httpClient = new HttpClient();
@@ -120,7 +125,6 @@ namespace Grid
             {
                 MessageBox.Show(ex.Message);
             }
-            Check.ItemsSource = ids;
         }
         private void Choose_folder(object sender, RoutedEventArgs e)
         {
@@ -300,7 +304,7 @@ namespace Grid
                 {
                     var httpClient = new HttpClient();
                     var response = await httpClient.GetAsync($"{url}/images");
-
+                    Clear_Collections();
                     if (response.IsSuccessStatusCode)
                     {
                         ids = await response.Content.ReadFromJsonAsync<List<int>>();
