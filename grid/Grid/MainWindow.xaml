@@ -129,9 +129,10 @@
         </TabControl>
         <Button Name ="Folder_button" Content="Choose folder" HorizontalAlignment="Center" Height="35" Margin="0,33,0,0" VerticalAlignment="Top" Width="168" Background="White" Click="Choose_folder"/>
         <Button Name="Start_button" Content="Start" HorizontalAlignment="Center" Height="35" Margin="0,95,0,0" VerticalAlignment="Top" Width="168" Background="White" Click="Run"/>
-        <Button Content="Cancel" HorizontalAlignment="Center" Height="35" Margin="0,153,0,0" VerticalAlignment="Top" Width="168" Background="White"  Click="Cancel"/>
+        <Button Content="Cancel" HorizontalAlignment="Center" Height="35" Margin="0,264,0,0" VerticalAlignment="Top" Width="168" Background="White"  Click="Cancel"/>
         <ListBox Name="Check" HorizontalAlignment="Center" Height="89" Margin="0,315,0,0" VerticalAlignment="Top" Width="168" ItemsSource="{Binding}"/>
         <Button Name="Clear_button" Content="Clear" HorizontalAlignment="Center" Height="35" Margin="0,209,0,0" VerticalAlignment="Top" Width="168" Background="White" Click="Clear"/>
+        <Button Name="Ids_button" Content="Show ids" HorizontalAlignment="Center" Height="34" Margin="0,155,0,0" VerticalAlignment="Top" Width="168" Background="White" Click="Ids_button_Click"/>
 
     </Grid>
 </Window>
